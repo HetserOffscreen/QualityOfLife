@@ -23,7 +23,7 @@ echo.
 echo   Made by Hetser Offscreen
 echo.
 
-:: --- SCANNING (Animation moved here) ---
+:: --- SCANNING (Animation) ---
 echo Looking For Shit...
 call :loadingbar
 
