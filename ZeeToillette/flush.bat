@@ -1,116 +1,105 @@
 @echo off
 setlocal enabledelayedexpansion
+title Protocol: Zee Toillette
 color 0E
+
+:: --- INIT ---
+for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do rem"') do set "ESC=%%b"
+
+:HEADER
 cls
-title PROTOCOL: ZEE_TOILLETE
-
-:: --- HEADER ---
 echo.
-echo   ______  ______  ______     
-echo  ^|___  /^ ^|  ____^|^|  ____^|    
-echo     / /  ^| ^|__   ^| ^|__       
-echo    / /   ^|  __^|  ^|  __^|      
-echo   / /__  ^| ^|____ ^| ^|____     
-echo  /_____^|^|_______^|^|_______^|    
-echo.
-echo   _______  _____   _____  _        _        ______  _______  ______ 
-echo  ^|__   __^|^|  _  ^| ^|_   _^|^| ^|      ^| ^|      ^|  ____^|^|__   __^|^|  ____^|
-echo     ^| ^|   ^| ^| ^| ^|   ^| ^|  ^| ^|      ^| ^|      ^| ^|__      ^| ^|   ^| ^|__   
-echo     ^| ^|   ^| ^| ^| ^|   ^| ^|  ^| ^|      ^| ^|      ^|  __^|     ^| ^|   ^|  __^|  
-echo     ^| ^|   \ \_/ /  _^| ^|_ ^| ^|____  ^| ^|____  ^| ^|____    ^| ^|   ^| ^|____ 
-echo     ^|_^|    \___/  ^|_____^|^|______^| ^|______^| ^|______^|   ^|_^|   ^|______^|
-echo.
-echo   Made by Hetser Offscreen
+echo   o  .   O   .  ______  ______  ______   .   o   .   O   .   o
+echo     .   o   .  ^|___  /^ ^|  ____^|^|  ____^| .   O   .   o   .   O
+echo   O   .   o      / /  ^| ^|__   ^| ^|__      .   o   .   O   .
+echo     .   O       / /   ^|  __^|  ^|  __^|    o    .   o     .   o
+echo   o   .   o    / /__  ^| ^|____ ^| ^|____     .   O   .   o   .
+echo     O   .   o /_____^|^|_______^|^|_______^|  o    .   o     .   O
+echo   .   o   .   _______  _____   _____  _   .    _   .    ______  _______  ______
+echo     .   O    ^|__   __^|^|  _  ^| ^|_   _^|^| ^|   o  ^| ^|   .  ^|  ____^|^|__   __^|^|  ____^|
+echo   o   .   o     ^| ^|   ^| ^| ^| ^|   ^| ^|  ^| ^|   .  ^| ^|   o  ^| ^|__      ^| ^|   ^| ^|__
+echo     o   .   O   ^| ^|   ^| ^| ^| ^|   ^| ^|  ^| ^|   o  ^| ^|   .  ^|  __^|     ^| ^|   ^|  __^|
+echo   .   O   .     ^| ^|   \ \_/ /  _^| ^|_ ^| ^|____  ^| ^|____  ^| ^|____    ^| ^|   ^| ^|____
+echo     .   o   .   ^|_^|    \___/  ^|_____^|^|______^| ^|______^| ^|______^|   ^|_^|   ^|______^|
+echo   o   .   O   .      o     .      O    .     o      .    O     .
+echo                                       o     by Hetser Offscreen  .
 echo.
 
-:: --- SCANNING (Animation) ---
-echo Looking For Shit...
-call :loadingbar
+:SCAN_TARGETS
+echo   Looking For Shit...
+call :ANIM_LOADING
 
-:: Define potential targets
-set "target1=%APPDATA%\stremio\stremio-server\stremio-cache"
-set "target2=%LOCALAPPDATA%\stremio\stremio-server\stremio-cache"
-set "final_target="
+set "t1=%APPDATA%\stremio\stremio-server\stremio-cache"
+set "t2=%LOCALAPPDATA%\stremio\stremio-server\stremio-cache"
+if exist "%t1%" (set "target=%t1%") else (if exist "%t2%" (set "target=%t2%") else (goto EXIT_CLEAN))
 
-:: Logic: Find which one exists
-if exist "%target1%" set "final_target=%target1%"
-if exist "%target2%" set "final_target=%target2%"
-
-:: If neither found, go to detailed report
-if not defined final_target goto clean_exit
-
-:: --- CALCULATE SIZE ---
+:CALC_SIZE
 set "size=0"
-for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "try { [math]::Round(((Get-ChildItem -LiteralPath '%final_target%' -Recurse -Force -ErrorAction Stop | Measure-Object -Property Length -Sum).Sum / 1MB), 2) } catch { 0 }"`) do set "size=%%A"
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "try { [math]::Round(((Get-ChildItem -LiteralPath '%target%' -Recurse -Force -ErrorAction Stop | Measure-Object -Property Length -Sum).Sum / 1MB), 2) } catch { 0 }"`) do set "size=%%A"
 
 echo.
-echo  [+] TURD SIZE DETECTED: !size! MB
+echo   [+] TURD SIZE DETECTED: %size% MB
 echo.
 
-:: --- CONFIRMATION ---
-set /p "ask=Flush this turd? (y/n): "
-if /i not "!ask!"=="y" goto abort
+:PROMPT_USER
+set /p "ask=   Flush this turd? (y/n) > "
+if /i not "!ask!"=="y" goto EXIT_ABORT
 
-:: --- ANIMATIONS ---
+:FLUSH_PROCESS
 echo.
-echo Cleaning Piracy Data...
-call :loadingbar
+echo   Cleaning Piracy Data...
+call :ANIM_LOADING
 
 echo.
-echo Flushing Your...
-timeout /t 4 /nobreak >nul
-call :shittybar
+echo   Flushing Your...
+timeout /t 2 /nobreak >nul
+call :ANIM_FLUSHING
 
-:: --- CLEANUP ---
 taskkill /F /IM stremio.exe >nul 2>&1
-rd /s /q "%final_target%"
+rd /s /q "%target%"
 
 echo.
-echo Done! Your crap has been cleaneded.
-
-:: --- SOUND & EXIT ---
-:: Console Beep
+echo   Done! Your crap has been cleaned.
 cmd /c "echo "
-goto end_script
+goto EXIT_Done
 
-:clean_exit
+:EXIT_CLEAN
 echo.
-echo  [Roaming] SECTOR CLEAR
-echo  [Local]   SECTOR CLEAR
+echo   [Roaming] SECTOR CLEAR
+echo   [Local]   SECTOR CLEAR
 echo.
-echo  [!] SYSTEM CLEAN.
-goto end_script
+echo   [!] SYSTEM CLEAN.
+goto EXIT_DONE
 
-:abort
+:EXIT_ABORT
 echo.
-echo  [!] ABORTING. THE CRAP REMAINS.
-goto end_script
+echo   [!] ABORTING. THE CRAP REMAINS.
+goto EXIT_DONE
 
-:end_script
+:EXIT_DONE
 echo.
-echo Press any key to exit...
+echo   Press any key to exit...
 pause >nul
 exit /b
 
-:: --- VISUALS ---
-:loadingbar
-set /p ="Status: " <nul
-timeout /t 2 /nobreak >nul
+:ANIM_LOADING
+set /p ="   Status: " <nul
+timeout /t 1 /nobreak >nul
 set /p ="[" <nul
 for /L %%x in (1,1,40) do (
     set /p ="/" <nul
-    ping localhost -n 1 -w 80 >nul
+    ping localhost -n 1 -w 50 >nul
 )
 echo ] OK.
 exit /b
 
-:shittybar
-set /p ="Shit: " <nul
-timeout /t 2 /nobreak >nul
+:ANIM_FLUSHING
+set /p ="   Shit: " <nul
+timeout /t 1 /nobreak >nul
 set /p ="[" <nul
-for /L %%x in (1,1,120) do (
+for /L %%x in (1,1,60) do (
     set /p ="/" <nul
-    ping localhost -n 1 -w 80 >nul
+    ping localhost -n 1 -w 50 >nul
 )
 echo ] OK.
 exit /b
